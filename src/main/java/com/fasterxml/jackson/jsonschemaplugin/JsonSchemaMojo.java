@@ -31,7 +31,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectDependenciesResolver;
 import org.codehaus.plexus.util.SelectorUtils;
 
 import java.io.File;
@@ -65,13 +64,10 @@ public class JsonSchemaMojo extends AbstractMojo {
      * Patterns of classes to exclude.
      */
     @Parameter
-    List<String> excludes;
+    List<String> excludes = Lists.newArrayList(); // default to an empty list instead of null.
 
     @Component
     MavenProject project;
-
-    @Component
-    ProjectDependenciesResolver projectDependenciesResolver;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         ObjectMapper m = new ObjectMapper();
@@ -100,6 +96,7 @@ public class JsonSchemaMojo extends AbstractMojo {
         for (ClassPath.ClassInfo info : classPath.getAllClasses()) {
             boolean included = false;
             for (String pattern : includes) {
+                pattern = pattern.replace("/", "."); // map from typical / syntax to class name.
                 if (SelectorUtils.matchPath(pattern, info.getName(), ".", true)) {
                     included = true;
                     break;
@@ -108,6 +105,7 @@ public class JsonSchemaMojo extends AbstractMojo {
             if (included) {
                 boolean excluded = false;
                 for (String pattern : excludes) {
+                    pattern = pattern.replace("/", "."); // map from typical / syntax to class name.
                     if (SelectorUtils.matchPath(pattern, info.getName(), ".", true)) {
                         excluded = true;
                         break;
