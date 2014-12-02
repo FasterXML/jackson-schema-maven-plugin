@@ -16,27 +16,31 @@ package com.fasterxml.jackson.jsonschemaplugin;
  * limitations under the License.
  */
 
-import org.apache.maven.RepositoryUtils;
-import org.apache.maven.artifact.Artifact;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
+import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
+import com.google.common.collect.Lists;
+import com.google.common.reflect.ClassPath;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
-import org.apache.maven.project.DefaultDependencyResolutionRequest;
-import org.apache.maven.project.DependencyResolutionException;
-import org.apache.maven.project.DependencyResolutionResult;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectDependenciesResolver;
-import org.sonatype.aether.RepositorySystemSession;
+import org.codehaus.plexus.util.SelectorUtils;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Json Schema Generator.
@@ -67,32 +71,61 @@ public class JsonSchemaMojo extends AbstractMojo {
     MavenProject project;
 
     @Component
-    RepositorySystemSession repoSession;
-
-    @Component
     ProjectDependenciesResolver projectDependenciesResolver;
 
-    public void execute() throws MojoExecutionException {
-
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        ObjectMapper m = new ObjectMapper();
+        SchemaFactoryWrapper visitor = new SchemaFactoryWrapper();
+        try {
+            for (Class<?> clazz : getClassesToProcess()) {
+                m.acceptJsonFormatVisitor(m.constructType(clazz), visitor);
+            }
+        } catch (IOException e) {
+            throw new MojoFailureException("Failed to construct compile classpath class loader.", e);
+        } catch (DependencyResolutionRequiredException e) {
+            throw new MojoFailureException("Failed to resolve dependencies.", e);
+        }
+        JsonSchema jsonSchema = visitor.finalSchema();
+        try {
+            m.writeValue(outputSchema, jsonSchema);
+        } catch (IOException e) {
+            throw new MojoExecutionException("Failed to write result schema.", e);
+        }
     }
 
-    Set<Artifact> getDependencyArtifacts() throws MojoExecutionException {
-
-        DefaultDependencyResolutionRequest dependencyResolutionRequest = new DefaultDependencyResolutionRequest(project, repoSession);
-        DependencyResolutionResult dependencyResolutionResult;
-
-        try {
-            dependencyResolutionResult = projectDependenciesResolver.resolve(dependencyResolutionRequest);
-        } catch (DependencyResolutionException ex) {
-            throw new MojoExecutionException(ex.getMessage(), ex);
+    private List<Class<?>> getClassesToProcess() throws IOException, DependencyResolutionRequiredException {
+        ClassLoader loader = getClassLoader(); // get the compile classpath class loader.
+        List<Class<?>> results = Lists.newArrayList();
+        ClassPath classPath = ClassPath.from(loader);
+        for (ClassPath.ClassInfo info : classPath.getAllClasses()) {
+            boolean included = false;
+            for (String pattern : includes) {
+                if (SelectorUtils.matchPath(pattern, info.getName(), ".", true)) {
+                    included = true;
+                    break;
+                }
+            }
+            if (included) {
+                boolean excluded = false;
+                for (String pattern : excludes) {
+                    if (SelectorUtils.matchPath(pattern, info.getName(), ".", true)) {
+                        excluded = true;
+                        break;
+                    }
+                }
+                if (!excluded) {
+                    results.add(info.load());
+                }
+            }
         }
+        return results;
+    }
 
-        Set<Artifact> artifacts = new LinkedHashSet<Artifact>();
-        if (dependencyResolutionResult.getDependencyGraph() != null
-                && !dependencyResolutionResult.getDependencyGraph().getChildren().isEmpty()) {
-            RepositoryUtils.toArtifacts(artifacts, dependencyResolutionResult.getDependencyGraph().getChildren(),
-                    Collections.singletonList(project.getArtifact().getId()), null);
-        }
-        return artifacts;
+    protected ClassLoader getClassLoader() throws DependencyResolutionRequiredException, MalformedURLException {
+        List<URL> urls = new ArrayList<URL>();
+        for (String path : project.getCompileClasspathElements()) {
+                urls.add(new File(path).toURI().toURL());
+            }
+        return new URLClassLoader(urls.toArray(new URL[urls.size()]));
     }
 }
