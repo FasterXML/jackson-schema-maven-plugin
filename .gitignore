@@ -27,3 +27,4 @@ hs_err_pid*
 jackson-json-schema-plugin.iml
 .idea
 *~
+*.iml

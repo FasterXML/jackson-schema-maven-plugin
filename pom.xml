@@ -22,6 +22,7 @@
     </properties>
     <modules>
       <module>api</module>
+      <module>api-examples</module>
       <module>plugin</module>
     </modules>
     <build>
