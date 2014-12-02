@@ -1,0 +1,34 @@
+# Usage #
+
+This plugin applies
+[jackson-module-jsonSchema](https://github.com/FasterXML/jackson-module-jsonSchema)
+to classes from the compile classpath to generate a json schema for
+these classes. Thus, it respects any Jackson annotations on the
+classes, but does not take into account any custom serialization and
+deserialization.
+
+Here's a basic example:
+
+```
+      <plugin>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>${project.artifactId}</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <id>generate1</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>com/fasterxml/jackson/schematest/**</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+```
