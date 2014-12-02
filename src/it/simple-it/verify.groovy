@@ -1,3 +1,8 @@
-File touchFile = new File(basedir, "target/schema.json");
+File touchFile1 = new File(basedir, "target/schema.json")
+assert touchFile1.isFile()
+assert touchFile1.text.contains("Nested2")
 
-assert touchFile.isFile()
+File touchFile2 = new File(basedir, "target/output2.json")
+assert touchFile2.isFile()
+
+assert !touchFile2.text.contains("Nested2")

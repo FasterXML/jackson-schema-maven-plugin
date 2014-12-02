@@ -21,7 +21,7 @@
         <version>@project.version@</version>
         <executions>
           <execution>
-            <id>generate</id>
+            <id>generate1</id>
             <phase>process-classes</phase>
             <goals>
               <goal>generate</goal>
@@ -30,6 +30,22 @@
               <includes>
                 <include>com/fasterxml/jackson/schematest/**</include>
               </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate2</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <outputSchema>${project.build.directory}/output2.json</outputSchema>
+              <includes>
+                <include>com/fasterxml/jackson/schematest/**</include>
+              </includes>
+              <excludes>
+                <exclude>com/fasterxml/jackson/schematest/**/*$*</exclude> <!-- no nested class -->
+              </excludes>
             </configuration>
           </execution>
         </executions>

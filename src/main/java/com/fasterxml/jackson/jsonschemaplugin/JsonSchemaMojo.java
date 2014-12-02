@@ -1,21 +1,5 @@
 package com.fasterxml.jackson.jsonschemaplugin;
 
-/*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
@@ -83,7 +67,7 @@ public class JsonSchemaMojo extends AbstractMojo {
         }
         JsonSchema jsonSchema = visitor.finalSchema();
         try {
-            m.writeValue(outputSchema, jsonSchema);
+            m.writerWithDefaultPrettyPrinter().writeValue(outputSchema, jsonSchema);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to write result schema.", e);
         }
@@ -94,6 +78,7 @@ public class JsonSchemaMojo extends AbstractMojo {
         List<Class<?>> results = Lists.newArrayList();
         ClassPath classPath = ClassPath.from(loader);
         for (ClassPath.ClassInfo info : classPath.getAllClasses()) {
+            getLog().debug("Class: " + info.getName());
             boolean included = false;
             for (String pattern : includes) {
                 pattern = pattern.replace("/", "."); // map from typical / syntax to class name.
