@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.jsonschemaplugin;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jsonschemaplugin.api.JsonSchemaObjectMapperFactory;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.google.common.collect.Lists;
@@ -38,6 +39,15 @@ public class JsonSchemaMojo extends AbstractMojo {
     File outputSchema;
 
     /**
+     * Name a class that implements {@link com.fasterxml.jackson.jsonschemaplugin.api.JsonSchemaObjectMapperFactory}.
+     * This class path must be in the plugin's classpath or the compile classpath. The plugin will
+     * instantiate an object of this class and call it to obtain an {@link com.fasterxml.jackson.databind.ObjectMapper},
+     * thus seeing any customizations applied to that object mapper.
+     */
+    @Parameter
+    String objectMapperFactoryClassName;
+
+    /**
      * Patterns (ant-ish) of classes to generate.
      * This may not be empty; there is no default.
      */
@@ -50,14 +60,21 @@ public class JsonSchemaMojo extends AbstractMojo {
     @Parameter
     List<String> excludes = Lists.newArrayList(); // default to an empty list instead of null.
 
-    @Component
+    @Parameter(defaultValue="${project}", readonly = true)
     MavenProject project;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        ObjectMapper m = new ObjectMapper();
+        ClassLoader compileClassLoader; // get the compile classpath class loader.
+        try {
+            compileClassLoader = getClassLoader();
+        } catch (Exception e) {
+            throw new MojoFailureException("Failed to build class loader for compile classpath.", e);
+        }
+
+        ObjectMapper m = getObjectMapper(compileClassLoader);
         SchemaFactoryWrapper visitor = new SchemaFactoryWrapper();
         try {
-            for (Class<?> clazz : getClassesToProcess()) {
+            for (Class<?> clazz : getClassesToProcess(compileClassLoader)) {
                 m.acceptJsonFormatVisitor(m.constructType(clazz), visitor);
             }
         } catch (IOException e) {
@@ -73,8 +90,38 @@ public class JsonSchemaMojo extends AbstractMojo {
         }
     }
 
-    private List<Class<?>> getClassesToProcess() throws IOException, DependencyResolutionRequiredException {
-        ClassLoader loader = getClassLoader(); // get the compile classpath class loader.
+    @SuppressWarnings("unchecked")
+    private ObjectMapper getObjectMapper(ClassLoader compileClassLoader) throws MojoExecutionException {
+        if (objectMapperFactoryClassName != null) {
+            Class<? extends JsonSchemaObjectMapperFactory> factoryClass = null;
+            try {
+                factoryClass = (Class<? extends JsonSchemaObjectMapperFactory>) getClass().getClassLoader().loadClass(objectMapperFactoryClassName);
+            } catch (ClassNotFoundException e) {
+                getLog().debug("No class " + objectMapperFactoryClassName + " in plugin class loader.");
+            }
+
+            if (factoryClass == null) {
+                try {
+                    factoryClass = (Class<? extends JsonSchemaObjectMapperFactory>) compileClassLoader.loadClass(objectMapperFactoryClassName);
+                } catch (ClassNotFoundException e) {
+                    getLog().debug("No class " + objectMapperFactoryClassName + " in compile class path.");
+                }
+            }
+
+            if (factoryClass == null) {
+                throw new MojoExecutionException("Unable to load object mapper factory class " + objectMapperFactoryClassName);
+            }
+            try {
+                return factoryClass.newInstance().newMapper();
+            } catch (Exception e) {
+                throw new MojoExecutionException("Error obtaining object mapper from " + objectMapperFactoryClassName, e);
+            }
+        } else {
+            return new ObjectMapper();
+        }
+    }
+
+    private List<Class<?>> getClassesToProcess(ClassLoader loader) throws IOException, DependencyResolutionRequiredException {
         List<Class<?>> results = Lists.newArrayList();
         ClassPath classPath = ClassPath.from(loader);
         for (ClassPath.ClassInfo info : classPath.getAllClasses()) {
