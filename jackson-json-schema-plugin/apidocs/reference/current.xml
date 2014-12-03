@@ -1,0 +1,82 @@
+<api>
+<package name="com.fasterxml.jackson.jsonschemaplugin"
+>
+<class name="HelpMojo"
+ extends="org.apache.maven.plugin.AbstractMojo"
+ abstract="false"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+<constructor name="HelpMojo"
+ type="com.fasterxml.jackson.jsonschemaplugin.HelpMojo"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+</constructor>
+<method name="execute"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+<exception name="MojoExecutionException" type="org.apache.maven.plugin.MojoExecutionException">
+</exception>
+</method>
+</class>
+<class name="JsonSchemaMojo"
+ extends="org.apache.maven.plugin.AbstractMojo"
+ abstract="false"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+<constructor name="JsonSchemaMojo"
+ type="com.fasterxml.jackson.jsonschemaplugin.JsonSchemaMojo"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+</constructor>
+<method name="execute"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+<exception name="MojoExecutionException" type="org.apache.maven.plugin.MojoExecutionException">
+</exception>
+<exception name="MojoFailureException" type="org.apache.maven.plugin.MojoFailureException">
+</exception>
+</method>
+<method name="getClassLoader"
+ return="java.lang.ClassLoader"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="false"
+ final="false"
+ deprecated="not deprecated"
+ visibility="protected"
+>
+<exception name="DependencyResolutionRequiredException" type="org.apache.maven.artifact.DependencyResolutionRequiredException">
+</exception>
+<exception name="MalformedURLException" type="java.net.MalformedURLException">
+</exception>
+</method>
+</class>
+</package>
+</api>

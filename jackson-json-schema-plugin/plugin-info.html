@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20141203" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Json Schema Plugin &#x2013; About</title>
+    <title>Json Schema Plugin &#x2013; Plugin Documentation</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.3.1.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -43,7 +43,7 @@
         Json Schema Plugin</a>
                     <span class="divider">/</span>
       </li>
-        <li class="active ">About</li>
+        <li class="active ">Plugin Documentation</li>
         
                 
                     
@@ -64,17 +64,17 @@
                 <ul class="nav nav-list">
                     <li class="nav-header">Annotated data model</li>
                               
-      <li class="active">
-  
-            <a href="#"><i class="none"></i>Home</a>
-          </li>
-                
       <li>
   
-                          <a href="plugin-info.html" title="Goals">
+                          <a href="index.html" title="Home">
           <i class="none"></i>
-        Goals</a>
+        Home</a>
             </li>
+                
+      <li class="active">
+  
+            <a href="#"><i class="none"></i>Goals</a>
+          </li>
                 
       <li>
   
@@ -82,49 +82,77 @@
           <i class="none"></i>
         Usage</a>
             </li>
-                              <li class="nav-header">Project Documentation</li>
-                                                                                                                                                
+                                        <li class="nav-header">Project Documentation</li>
+                                                                                                                                      
       <li>
   
                           <a href="project-info.html" title="Project Information">
-          <i class="icon-chevron-down"></i>
+          <i class="icon-chevron-right"></i>
         Project Information</a>
+                  </li>
+                                                                                                                                                                                                          
+      <li>
+  
+                          <a href="project-reports.html" title="Project Reports">
+          <i class="icon-chevron-down"></i>
+        Project Reports</a>
                     <ul class="nav nav-list">
                     
       <li>
   
-                          <a href="dependency-info.html" title="Dependency Information">
+                          <a href="apidocs/index.html" title="JavaDocs">
           <i class="none"></i>
-        Dependency Information</a>
+        JavaDocs</a>
+            </li>
+                    
+      <li>
+  
+                          <a href="xref/index.html" title="Source Xref">
+          <i class="none"></i>
+        Source Xref</a>
+            </li>
+                    
+      <li>
+  
+                          <a href="jdepend-report.html" title="JDepend">
+          <i class="none"></i>
+        JDepend</a>
+            </li>
+                    
+      <li>
+  
+                          <a href="surefire-report.html" title="Surefire Report">
+          <i class="none"></i>
+        Surefire Report</a>
+            </li>
+                    
+      <li>
+  
+                          <a href="pmd.html" title="PMD Report">
+          <i class="none"></i>
+        PMD Report</a>
+            </li>
+                    
+      <li>
+  
+                          <a href="cpd.html" title="CPD Report">
+          <i class="none"></i>
+        CPD Report</a>
+            </li>
+                    
+      <li>
+  
+                          <a href="taglist.html" title="Tag List">
+          <i class="none"></i>
+        Tag List</a>
             </li>
                     
       <li class="active">
   
-            <a href="#"><i class="none"></i>About</a>
+            <a href="#"><i class="none"></i>Plugin Documentation</a>
           </li>
-                    
-      <li>
-  
-                          <a href="source-repository.html" title="Source Repository">
-          <i class="none"></i>
-        Source Repository</a>
-            </li>
-                    
-      <li>
-  
-                          <a href="project-summary.html" title="Project Summary">
-          <i class="none"></i>
-        Project Summary</a>
-            </li>
               </ul>
         </li>
-                                                                                    
-      <li>
-  
-                          <a href="project-reports.html" title="Project Reports">
-          <i class="icon-chevron-right"></i>
-        Project Reports</a>
-                  </li>
                               <li class="nav-header">General Information</li>
                               
       <li>
@@ -155,24 +183,68 @@
         <div id="bodyColumn"  class="span9" >
                                   
             <div class="section">
-<h2><a name="About_Jackson_Json_Schema_Generation_Maven_Plugin"></a>About Jackson Json Schema Generation Maven Plugin</h2><a name="About_Jackson_Json_Schema_Generation_Maven_Plugin"></a>
-<p>Parent pom for all Jackson components</p>
-<div class="section">
-<h3><a name="Project_Modules"></a>Project Modules</h3><a name="Project_Modules"></a>
-<p>This project has declared the following modules:</p>
+<h2><a name="Plugin_Documentation"></a>Plugin Documentation</h2><a name="Plugin_Documentation"></a>
+<p>Goals available for this plugin:</p>
 <table border="0" class="table table-striped">
 <tr class="a">
-<th>Name</th>
+<th>Goal</th>
 <th>Description</th></tr>
 <tr class="b">
-<td><a href="jackson-json-schema-plugin-api/index.html">jackson-json-schema-plugin-api</a></td>
-<td>Parent pom for all Jackson components</td></tr>
+<td><a href="generate-mojo.html">jackson-json-schema:generate</a></td>
+<td>Json Schema Generator.</td></tr>
 <tr class="a">
-<td><a href="jackson-json-schema-plugin-api-examples/index.html">jackson-json-schema-plugin-api-examples</a></td>
-<td>Parent pom for all Jackson components</td></tr>
+<td><a href="help-mojo.html">jackson-json-schema:help</a></td>
+<td>Display help information on jackson-json-schema-plugin.<br />
+Call <code>mvn jackson-json-schema-plugin:help -Ddetail=true
+-Dgoal=&lt;goal-name&gt;</code> to display parameter details.</td></tr></table>
+<div class="section">
+<h3><a name="System_Requirements"></a>System Requirements</h3><a name="System_Requirements"></a>
+<p>The following specifies the minimum requirements to run this Maven plugin:</p>
+<table border="0" class="table table-striped">
+<tr class="a">
+<td>Maven</td>
+<td>2.0</td></tr>
 <tr class="b">
-<td><a href="jackson-json-schema-plugin/index.html">jackson-json-schema-plugin</a></td>
-<td>Parent pom for all Jackson components</td></tr></table></div></div>
+<td>JDK</td>
+<td>1.6</td></tr>
+<tr class="a">
+<td>Memory</td>
+<td>No minimum requirement.</td></tr>
+<tr class="b">
+<td>Disk Space</td>
+<td>No minimum requirement.</td></tr></table></div>
+<div class="section">
+<h3><a name="Usage"></a>Usage</h3><a name="Usage"></a>
+<p>You should specify the version in your project's plugin configuration:</p>
+<div class="source">
+<pre>&lt;project&gt;
+  ...
+  &lt;build&gt;
+    &lt;!-- To define the plugin version in your parent POM --&gt;
+    &lt;pluginManagement&gt;
+      &lt;plugins&gt;
+        &lt;plugin&gt;
+          &lt;groupId&gt;com.fasterxml.jackson&lt;/groupId&gt;
+          &lt;artifactId&gt;jackson-json-schema-plugin&lt;/artifactId&gt;
+          &lt;version&gt;2.4.4-SNAPSHOT&lt;/version&gt;
+        &lt;/plugin&gt;
+        ...
+      &lt;/plugins&gt;
+    &lt;/pluginManagement&gt;
+    &lt;!-- To use the plugin goals in your POM or parent POM --&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;com.fasterxml.jackson&lt;/groupId&gt;
+        &lt;artifactId&gt;jackson-json-schema-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.4.4-SNAPSHOT&lt;/version&gt;
+      &lt;/plugin&gt;
+      ...
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+  ...
+&lt;/project&gt;
+</pre></div>
+<p>For more information, see <a class="externalLink" href="http://maven.apache.org/guides/mini/guide-configuring-plugins.html">&quot;Guide to Configuring Plug-ins&quot;</a></p></div></div>
                   </div>
             </div>
           </div>
