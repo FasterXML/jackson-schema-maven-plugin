@@ -213,6 +213,27 @@ there is no default.<br /></td>
           
 <tr class="a">
             
+<td><b><a href="#objectMapperFactoryClassName">objectMapperFactoryClassName</a></b></td>
+            
+<td><tt>String</tt></td>
+            
+<td><tt>-</tt></td>
+            
+<td>Name a class that implements
+<tt>JsonSchemaObjectMapperFactory</tt>. This class path must be
+in the compile classpath or the plugin class loader (the
+dependencies declared in the pom <b>for the plugin</b>).
+The plugin will instantiate an object of this class and call it to
+obtain an <tt>ObjectMapper</tt>, thus seeing any customizations
+applied to that object mapper. If you use a class that is in the
+plugin class loader and <b>not</b> in the compile
+classpath, it will not apply customizations to classes unless the
+classes themselves are also in the plugin class loader. Therefore,
+using the plugin class loader is probably not a good idea.<br /></td>
+          </tr>
+          
+<tr class="b">
+            
 <td><b><a href="#outputSchema">outputSchema</a></b></td>
             
 <td><tt>File</tt></td>
@@ -247,6 +268,26 @@ there is no default.</div>
 <li><b>Type</b>: <tt>java.util.List</tt></li>
           
 <li><b>Required</b>: <tt>Yes</tt></li>
+        </ul><hr />
+<p><b><a name="objectMapperFactoryClassName">objectMapperFactoryClassName</a>:</b></p>
+        
+<div>Name a class that implements
+<tt>JsonSchemaObjectMapperFactory</tt>. This class path must be
+in the compile classpath or the plugin class loader (the
+dependencies declared in the pom <b>for the plugin</b>).
+The plugin will instantiate an object of this class and call it to
+obtain an <tt>ObjectMapper</tt>, thus seeing any customizations
+applied to that object mapper. If you use a class that is in the
+plugin class loader and <b>not</b> in the compile
+classpath, it will not apply customizations to classes unless the
+classes themselves are also in the plugin class loader. Therefore,
+using the plugin class loader is probably not a good idea.</div>
+        
+<ul>
+          
+<li><b>Type</b>: <tt>java.lang.String</tt></li>
+          
+<li><b>Required</b>: <tt>No</tt></li>
         </ul><hr />
 <p><b><a name="outputSchema">outputSchema</a>:</b></p>
         

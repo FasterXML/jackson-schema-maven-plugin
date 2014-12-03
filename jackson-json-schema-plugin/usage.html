@@ -132,28 +132,64 @@
 
 <div class="source">
 <div class="source">
-<pre>      &lt;plugin&gt;
-        &lt;groupId&gt;com.fasterxml.jackson&lt;/groupId&gt;
-        &lt;artifactId&gt;jackson-json-schema-plugin&lt;/artifactId&gt;
-        &lt;version&gt;2.4.4-SNAPSHOT&lt;/version&gt;
-        &lt;executions&gt;
-          &lt;execution&gt;
-            &lt;id&gt;generate1&lt;/id&gt;
-            &lt;phase&gt;process-classes&lt;/phase&gt;
-            &lt;goals&gt;
-              &lt;goal&gt;generate&lt;/goal&gt;
-            &lt;/goals&gt;
-            &lt;configuration&gt;
-              &lt;includes&gt;
-                &lt;include&gt;com/fasterxml/jackson/schematest/**&lt;/include&gt;
-              &lt;/includes&gt;
-            &lt;/configuration&gt;
-          &lt;/execution&gt;
-        &lt;/executions&gt;
-      &lt;/plugin&gt;
-    &lt;/plugins&gt;
-  &lt;/build&gt;
+<pre>&lt;plugin&gt;
+ &lt;groupId&gt;com.fasterxml.jackson&lt;/groupId&gt;
+ &lt;artifactId&gt;jackson-json-schema-plugin&lt;/artifactId&gt;
+ &lt;version&gt;2.4.4-SNAPSHOT&lt;/version&gt;
+ &lt;executions&gt;
+   &lt;execution&gt;
+     &lt;id&gt;generate1&lt;/id&gt;
+     &lt;phase&gt;process-classes&lt;/phase&gt;
+     &lt;goals&gt;
+       &lt;goal&gt;generate&lt;/goal&gt;
+     &lt;/goals&gt;
+     &lt;configuration&gt;
+       &lt;includes&gt;
+         &lt;include&gt;com/fasterxml/jackson/schematest/**&lt;/include&gt;
+       &lt;/includes&gt;
+     &lt;/configuration&gt;
+   &lt;/execution&gt;
+ &lt;/executions&gt;
+&lt;/plugin&gt;
 </pre></div></div>
+<h1>Jackson Schema and Customizations</h1>
+<p>If you set options on your <tt>ObjectMapper</tt> instances that change the correct schema, you have to give the plugin access to this information. Registering modules is a common example.</p>
+<p>To do this, you have:</p>
+
+<ol style="list-style-type: decimal">
+  
+<li>Create a class that implements <tt>com.fasterxml.jackson.jsonschemaplugin.api.JsonSchemaObjectMapperFactory</tt>. This class must create an <tt>ObjectMapper</tt>, customize it, and return it.</li>
+  
+<li>Add that class to the <tt>compile</tt> classpath by including it in a Maven dependency with <tt>&lt;scope&gt;compile&lt;/scope&gt;</tt>.</li>
+  
+<li>Configure it in the pom.xml with <tt>objectMapperFactoryClassName</tt>.</li>
+</ol>
+<p>Here is an example configuration:</p>
+
+<div class="source">
+<div class="source">
+<pre>&lt;plugin&gt;
+ &lt;groupId&gt;com.fasterxml.jackson&lt;/groupId&gt;
+ &lt;artifactId&gt;jackson-json-schema-plugin&lt;/artifactId&gt;
+ &lt;version&gt;2.4.4-SNAPSHOT&lt;/version&gt;
+ &lt;executions&gt;
+   &lt;execution&gt;
+     &lt;id&gt;generate1&lt;/id&gt;
+     &lt;phase&gt;process-classes&lt;/phase&gt;
+     &lt;goals&gt;
+       &lt;goal&gt;generate&lt;/goal&gt;
+     &lt;/goals&gt;
+     &lt;configuration&gt;
+       &lt;includes&gt;
+         &lt;include&gt;com/fasterxml/jackson/jsonschemaplugin/apiexamples/CustomizedClass&lt;/include&gt;
+       &lt;/includes&gt;
+       &lt;objectMapperFactoryClassName&gt;com.fasterxml.jackson.jsonschemaplugin.apiexamples.ModuleExampleFactory&lt;/objectMapperFactoryClassName&gt;
+     &lt;/configuration&gt;
+   &lt;/execution&gt;
+ &lt;/executions&gt;
+&lt;/plugin&gt;
+</pre></div></div>
+<p>The plugin supports putting these classes into the plugin&#x2019;s classpath (via the <tt>dependency</tt> element of the <tt>plugin</tt> element). To make this work, the plugin constructs a class loader that has the plugin class loader as a parent and the compile-scope dependencies as the elements of the class path. This is really not very useful; to compile your factory, your module has to be in the classpath, and your module almost certainly has a dependency relationship to the classes it customizes. Thus, it&#x2019;s easier to just put the factory into the compilation classpath; if you don&#x2019;t want to include it downstream you can segregate it in an artifact and make it optional.</p>
                   </div>
             </div>
           </div>
