@@ -11,8 +11,17 @@
         <artifactId>jackson-parent</artifactId>
         <version>2.4</version>
     </parent>
-    <!-- FIXME change it to the project's website once it has one. -->
-    <url>http://maven.apache.org</url>
+    <scm>
+      <connection>scm:git:git@github.com:FasterXML/jackson-schema-maven-plugin.git</connection>
+      <developerConnection>scm:git:git@github.com:FasterXML/jackson-schema-maven-plugin.git</developerConnection>
+    </scm>
+    <distributionManagement>
+      <site>
+        <id>fasterxml-site</id>
+        <url>scm:git:git@github.com:FasterXML/jackson-schema-maven-plugin.git</url>
+      </site>
+    </distributionManagement>
+    <url>http://FasterXML.github.io/jackson-schema-maven-plugin</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <wagon-ssh.version>2.6</wagon-ssh.version>
@@ -40,7 +49,8 @@
                     <artifactId>maven-scm-publish-plugin</artifactId>
                     <version>1.1</version>
                     <configuration>
-                        <scmBranch>gh-pages</scmBranch>
+                      <scmBranch>gh-pages</scmBranch>
+                      <serverId>fasterxml-site</serverId>
                     </configuration>
                 </plugin>
                 <plugin>
