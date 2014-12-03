@@ -10,7 +10,6 @@ import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -40,9 +39,13 @@ public class JsonSchemaMojo extends AbstractMojo {
 
     /**
      * Name a class that implements {@link com.fasterxml.jackson.jsonschemaplugin.api.JsonSchemaObjectMapperFactory}.
-     * This class path must be in the plugin's classpath or the compile classpath. The plugin will
+     * This class path must be in the compile classpath or the plugin class loader (the dependencies declared
+     * in the pom <strong>for the plugin</strong>). The plugin will
      * instantiate an object of this class and call it to obtain an {@link com.fasterxml.jackson.databind.ObjectMapper},
      * thus seeing any customizations applied to that object mapper.
+     * If you use a class that is in the plugin class loader and <strong>not</strong> in the compile classpath,
+     * it will not apply customizations to classes unless the classes themselves are also in the plugin class loader.
+     * Therefore, using the plugin class loader is probably not a good idea.
      */
     @Parameter
     String objectMapperFactoryClassName;
@@ -93,19 +96,15 @@ public class JsonSchemaMojo extends AbstractMojo {
     @SuppressWarnings("unchecked")
     private ObjectMapper getObjectMapper(ClassLoader compileClassLoader) throws MojoExecutionException {
         if (objectMapperFactoryClassName != null) {
+            /*
+             * Note that the plugin class loader is the parent of the class loader passed in here.
+             * So, if the factory is sitting in the plugin class loader, we'll load it from there.
+             */
             Class<? extends JsonSchemaObjectMapperFactory> factoryClass = null;
             try {
-                factoryClass = (Class<? extends JsonSchemaObjectMapperFactory>) getClass().getClassLoader().loadClass(objectMapperFactoryClassName);
+                factoryClass = (Class<? extends JsonSchemaObjectMapperFactory>) compileClassLoader.loadClass(objectMapperFactoryClassName);
             } catch (ClassNotFoundException e) {
-                getLog().debug("No class " + objectMapperFactoryClassName + " in plugin class loader.");
-            }
-
-            if (factoryClass == null) {
-                try {
-                    factoryClass = (Class<? extends JsonSchemaObjectMapperFactory>) compileClassLoader.loadClass(objectMapperFactoryClassName);
-                } catch (ClassNotFoundException e) {
-                    getLog().debug("No class " + objectMapperFactoryClassName + " in compile class path.");
-                }
+                getLog().debug("No class " + objectMapperFactoryClassName + " in compile class path.");
             }
 
             if (factoryClass == null) {
@@ -124,10 +123,6 @@ public class JsonSchemaMojo extends AbstractMojo {
     private List<Class<?>> getClassesToProcess(ClassLoader loader) throws IOException, DependencyResolutionRequiredException {
         List<Class<?>> results = Lists.newArrayList();
         ClassPath classPath = ClassPath.from(loader);
-        /*
-         * This scans the compile dependencies. However, if there's a custom matcher at work, it has to be in the plugin classpath.
-         * This seems to require any class it customized to be there, as well. So we look for the class in the plugin class loader, first.
-         */
         for (ClassPath.ClassInfo info : classPath.getAllClasses()) {
             getLog().debug("Class: " + info.getName());
             boolean included = false;
@@ -148,10 +143,10 @@ public class JsonSchemaMojo extends AbstractMojo {
                     }
                 }
                 if (!excluded) {
-                    Class<?> clazz = loadClassFromPluginLoader(info.getName());
-                    if (clazz == null) {
-                        clazz = info.load();
-                    }
+                    /*
+                     * Note that the plugin class loader is a parent of
+                     */
+                    Class<?> clazz = info.load();
                     results.add(clazz);
                 }
             }
@@ -159,20 +154,17 @@ public class JsonSchemaMojo extends AbstractMojo {
         return results;
     }
 
-    private Class<?> loadClassFromPluginLoader(String name) {
-        try {
-            return getClass().getClassLoader().loadClass(name);
-        } catch (Exception e) {
-            getLog().debug("No class " + name + " in plugin classpath.", e);
-            return null;
-        }
-    }
-
+    /**
+     * @return a class loader made up of all the compile-scope dependencies, with the plugin class loader as a parent.
+     * @throws DependencyResolutionRequiredException
+     * @throws MalformedURLException
+     */
     protected ClassLoader getClassLoader() throws DependencyResolutionRequiredException, MalformedURLException {
         List<URL> urls = new ArrayList<URL>();
         for (String path : project.getCompileClasspathElements()) {
-                urls.add(new File(path).toURI().toURL());
-            }
-        return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+            urls.add(new File(path).toURI().toURL());
+        }
+        // be sure to use our classpath as a parent, so that we end up with only one copy of Jackson.
+        return new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
     }
 }

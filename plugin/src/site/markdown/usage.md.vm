@@ -10,25 +10,67 @@ deserialization.
 Here's a basic example:
 
 ```
-      <plugin>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>${project.artifactId}</artifactId>
-        <version>${project.version}</version>
-        <executions>
-          <execution>
-            <id>generate1</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>com/fasterxml/jackson/schematest/**</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+<plugin>
+ <groupId>${project.groupId}</groupId>
+ <artifactId>${project.artifactId}</artifactId>
+ <version>${project.version}</version>
+ <executions>
+   <execution>
+     <id>generate1</id>
+     <phase>process-classes</phase>
+     <goals>
+       <goal>generate</goal>
+     </goals>
+     <configuration>
+       <includes>
+         <include>com/fasterxml/jackson/schematest/**</include>
+       </includes>
+     </configuration>
+   </execution>
+ </executions>
+</plugin>
 ```
+
+# Jackson Schema and Customizations #
+
+If you set options on your `ObjectMapper` instances that change the correct schema,
+you have to give the plugin access to this information. Registering modules is a common example.
+
+To do this, you have:
+
+1. Create a class that implements `com.fasterxml.jackson.jsonschemaplugin.api.JsonSchemaObjectMapperFactory`. This class
+must create an `ObjectMapper`, customize it, and return it.
+2. Add that class to the `compile` classpath by including it in a Maven dependency with `<scope>compile</scope>`.
+3. Configure it in the pom.xml with `objectMapperFactoryClassName`.
+
+Here is an example configuration:
+
+```
+<plugin>
+ <groupId>${project.groupId}</groupId>
+ <artifactId>${project.artifactId}</artifactId>
+ <version>${project.version}</version>
+ <executions>
+   <execution>
+     <id>generate1</id>
+     <phase>process-classes</phase>
+     <goals>
+       <goal>generate</goal>
+     </goals>
+     <configuration>
+       <includes>
+         <include>com/fasterxml/jackson/jsonschemaplugin/apiexamples/CustomizedClass</include>
+       </includes>
+       <objectMapperFactoryClassName>com.fasterxml.jackson.jsonschemaplugin.apiexamples.ModuleExampleFactory</objectMapperFactoryClassName>
+     </configuration>
+   </execution>
+ </executions>
+</plugin>
+```
+
+The plugin supports putting these classes into the plugin's classpath (via the `dependency` element of the `plugin`
+element). To make this work, the plugin constructs a class loader that has the plugin class loader as a parent
+and the compile-scope dependencies as the elements of the class path. This is really not very useful; to compile your
+factory, your module has to be in the classpath, and your module almost certainly has a dependency relationship to
+the classes it customizes. Thus, it's easier to just put the factory into the compilation classpath; if you don't want
+to include it downstream you can segregate it in an artifact and make it optional.

@@ -29,13 +29,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>@project.groupId@</groupId>
-                        <artifactId>jackson-json-schema-plugin-api-examples</artifactId>
-                        <version>@project.version@</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
