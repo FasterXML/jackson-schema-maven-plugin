@@ -114,8 +114,11 @@
                             <settingsFile>src/it/settings.xml</settingsFile>
                             <goals>
                                 <goal>clean</goal>
-                                <goal>test-compile</goal>
+                                <goal>process-classes</goal>
                             </goals>
+                            <extraArtifacts>
+                              <extraArtifact>${project.groupId}:jackson-json-schema-plugin-api-examples:${project.version}:jar</extraArtifact>
+                            </extraArtifacts>
                         </configuration>
                         <executions>
                             <execution>

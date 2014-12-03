@@ -124,6 +124,10 @@ public class JsonSchemaMojo extends AbstractMojo {
     private List<Class<?>> getClassesToProcess(ClassLoader loader) throws IOException, DependencyResolutionRequiredException {
         List<Class<?>> results = Lists.newArrayList();
         ClassPath classPath = ClassPath.from(loader);
+        /*
+         * This scans the compile dependencies. However, if there's a custom matcher at work, it has to be in the plugin classpath.
+         * This seems to require any class it customized to be there, as well. So we look for the class in the plugin class loader, first.
+         */
         for (ClassPath.ClassInfo info : classPath.getAllClasses()) {
             getLog().debug("Class: " + info.getName());
             boolean included = false;
@@ -144,11 +148,24 @@ public class JsonSchemaMojo extends AbstractMojo {
                     }
                 }
                 if (!excluded) {
-                    results.add(info.load());
+                    Class<?> clazz = loadClassFromPluginLoader(info.getName());
+                    if (clazz == null) {
+                        clazz = info.load();
+                    }
+                    results.add(clazz);
                 }
             }
         }
         return results;
+    }
+
+    private Class<?> loadClassFromPluginLoader(String name) {
+        try {
+            return getClass().getClassLoader().loadClass(name);
+        } catch (Exception e) {
+            getLog().debug("No class " + name + " in plugin classpath.", e);
+            return null;
+        }
     }
 
     protected ClassLoader getClassLoader() throws DependencyResolutionRequiredException, MalformedURLException {
