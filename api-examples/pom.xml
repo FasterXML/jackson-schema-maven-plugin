@@ -8,6 +8,9 @@
       <artifactId>jackson-json-schema-maven-plugin</artifactId>
       <version>2.4.4-SNAPSHOT</version>
     </parent>
+    <description>
+      Examples for testing customization.
+    </description>
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
